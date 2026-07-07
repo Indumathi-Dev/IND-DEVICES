@@ -1,0 +1,139 @@
+/* IND-DEVICES design tokens — light console aesthetic
+   Signature element: the "signal pulse" status dot used for device/system health
+   throughout Login, Dashboard and Devices (see .signal-dot). */
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+:root {
+  /* Surfaces */
+  --ind-bg: #eef1f7;
+  --ind-bg-grid: #f4f6fa;
+  --ind-panel: #ffffff;
+  --ind-panel-alt: #f4f6fa;
+  --ind-border: #dde2ec;
+  --ind-border-soft: #e8ebf2;
+
+  /* Text */
+  --ind-text: #16213a;
+  --ind-text-muted: #5c6b85;
+  --ind-text-faint: #98a4ba;
+
+  /* Signal colors (tuned for contrast on white) */
+  --ind-cyan: #0d9488;
+  --ind-cyan-dim: rgba(13, 148, 136, 0.1);
+  --ind-amber: #d97706;
+  --ind-amber-dim: rgba(217, 119, 6, 0.1);
+  --ind-red: #e11d48;
+  --ind-red-dim: rgba(225, 29, 72, 0.1);
+  --ind-violet: #4f46e5;
+  --ind-violet-dim: rgba(79, 70, 229, 0.1);
+
+  /* Type */
+  --ind-font-display: 'Space Grotesk', 'Segoe UI', sans-serif;
+  --ind-font-body: 'Inter', 'Segoe UI', sans-serif;
+  --ind-font-mono: 'IBM Plex Mono', 'Consolas', monospace;
+
+  /* Layout */
+  --ind-radius: 10px;
+  --ind-radius-sm: 6px;
+  --ind-header-h: 60px;
+  --ind-nav-w: 220px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--ind-bg);
+  color: var(--ind-text);
+  font-family: var(--ind-font-body);
+}
+
+.ind-mono {
+  font-family: var(--ind-font-mono);
+}
+
+/* Signature signal-pulse indicator, reused for system status (header),
+   device online/offline state (table), and the login screen's "link established" cue. */
+.signal-dot {
+  position: relative;
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.signal-dot::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  opacity: 0.55;
+  animation: ind-pulse 1.8s ease-out infinite;
+}
+.signal-dot.online {
+  background: var(--ind-cyan);
+  color: var(--ind-cyan);
+}
+.signal-dot.warning {
+  background: var(--ind-amber);
+  color: var(--ind-amber);
+}
+.signal-dot.offline {
+  background: var(--ind-red);
+  color: var(--ind-red);
+}
+.signal-dot.idle {
+  background: var(--ind-text-faint);
+  color: var(--ind-text-faint);
+}
+.signal-dot.idle::after {
+  display: none;
+}
+
+@keyframes ind-pulse {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(2.1);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .signal-dot::after {
+    animation: none;
+  }
+}
+
+button {
+  font-family: inherit;
+}
+
+a {
+  color: var(--ind-cyan);
+  text-decoration: none;
+}
+
+::selection {
+  background: var(--ind-violet-dim);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--ind-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: #c7cee0;
+  border-radius: 6px;
+}

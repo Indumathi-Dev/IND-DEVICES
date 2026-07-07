@@ -1,0 +1,16 @@
+{
+  "name": "root-config",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "webpack serve --port 9000 --env isLocal",
+    "build": "webpack --mode production"
+  },
+  "dependencies": { "single-spa": "^6.0.3" },
+  "devDependencies": {
+    "html-webpack-plugin": "^5.6.0",
+    "webpack": "^5.94.0",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^5.1.0"
+  }
+}

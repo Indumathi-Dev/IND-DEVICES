@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="IND-DEVICES – RAN Fault and Inventory Console"/>
+  <title>IND-DEVICES</title>
+  <meta name="importmap-type" content="systemjs-importmap"/>
+  <script type="systemjs-importmap">
+  {
+    "imports": {
+      "@ind-devices/root-config": "//localhost:9000/ind-devices-root-config.js",
+      "@ind-devices/login":       "//localhost:8081/ind-devices-login.js",
+      "@ind-devices/dashboard":   "//localhost:8082/ind-devices-dashboard.js",
+      "@ind-devices/devices":     "//localhost:8083/ind-devices-devices.js"
+    }
+  }
+  </script>
+  <style>
+    /* WCAG 2.4.1 – Skip navigation link */
+    .skip-link {
+      position: absolute; top: -100%; left: 8px;
+      background: #2B6CB0; color: #fff; padding: 8px 16px;
+      border-radius: 0 0 6px 6px; font-family: system-ui, sans-serif;
+      font-size: 14px; font-weight: 600; text-decoration: none; z-index: 9999;
+      transition: top 0.15s;
+    }
+    .skip-link:focus { top: 0; }
+    html, body { margin: 0; padding: 0; background: #F7F8FA; }
+  </style>
+</head>
+<body>
+  <!-- WCAG 2.4.1 – Skip to main content -->
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+
+  <script src="https://cdn.jsdelivr.net/npm/systemjs@6.15.1/dist/system.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/systemjs@6.15.1/dist/extras/amd.min.js"></script>
+  <script>System.import('@ind-devices/root-config');</script>
+</body>
+</html>

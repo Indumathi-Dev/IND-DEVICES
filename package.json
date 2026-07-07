@@ -1,0 +1,16 @@
+{
+  "name": "ind-devices",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": ["root-config", "packages/*", "apps/*", "server"],
+  "scripts": {
+    "install:all": "npm install",
+    "start:server": "npm run dev --workspace=server",
+    "start:mfes": "concurrently -n root,login,dashboard,devices -c blue,green,magenta,yellow \"npm run start --workspace=root-config\" \"npm run start --workspace=login\" \"npm run start --workspace=dashboard\" \"npm run start --workspace=devices\"",
+    "start": "concurrently -n server,root,login,dashboard,devices -c cyan,blue,green,magenta,yellow \"npm run dev --workspace=server\" \"npm run start --workspace=root-config\" \"npm run start --workspace=login\" \"npm run start --workspace=dashboard\" \"npm run start --workspace=devices\"",
+    "build": "npm run build --workspaces --if-present"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
