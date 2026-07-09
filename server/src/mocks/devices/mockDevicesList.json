@@ -1,0 +1,25 @@
+{
+  "devices": [
+    { "DeviceId": "DEV-1001", "DeviceName": "Cell-Site-001", "DeviceType": "gNodeB",     "IPAddress": "10.10.1.2",  "Region": "North",   "Status": "online",  "Firmware": "v2.0.0", "Tenant": "TenantA", "LastSeen": "2026-06-17T08:00:00Z" },
+    { "DeviceId": "DEV-1002", "DeviceName": "Cell-Site-002", "DeviceType": "eNodeB",     "IPAddress": "10.11.2.3",  "Region": "South",   "Status": "online",  "Firmware": "v3.1.2", "Tenant": "TenantB", "LastSeen": "2026-06-17T07:55:00Z" },
+    { "DeviceId": "DEV-1003", "DeviceName": "Cell-Site-003", "DeviceType": "Small Cell", "IPAddress": "10.12.3.4",  "Region": "East",    "Status": "warning", "Firmware": "v2.2.1", "Tenant": "TenantA", "LastSeen": "2026-06-17T07:40:00Z" },
+    { "DeviceId": "DEV-1004", "DeviceName": "Cell-Site-004", "DeviceType": "Router",     "IPAddress": "10.13.4.5",  "Region": "West",    "Status": "online",  "Firmware": "v4.0.1", "Tenant": "TenantC", "LastSeen": "2026-06-17T08:01:00Z" },
+    { "DeviceId": "DEV-1005", "DeviceName": "Cell-Site-005", "DeviceType": "Switch",     "IPAddress": "10.14.5.6",  "Region": "Central", "Status": "offline", "Firmware": "v2.3.0", "Tenant": "TenantB", "LastSeen": "2026-06-16T23:10:00Z" },
+    { "DeviceId": "DEV-1006", "DeviceName": "Cell-Site-006", "DeviceType": "RRU",        "IPAddress": "10.15.6.7",  "Region": "North",   "Status": "online",  "Firmware": "v3.0.4", "Tenant": "TenantA", "LastSeen": "2026-06-17T07:58:00Z" },
+    { "DeviceId": "DEV-1007", "DeviceName": "Cell-Site-007", "DeviceType": "gNodeB",     "IPAddress": "10.16.7.8",  "Region": "South",   "Status": "online",  "Firmware": "v2.1.3", "Tenant": "TenantC", "LastSeen": "2026-06-17T07:50:00Z" },
+    { "DeviceId": "DEV-1008", "DeviceName": "Cell-Site-008", "DeviceType": "eNodeB",     "IPAddress": "10.17.8.9",  "Region": "East",    "Status": "warning", "Firmware": "v4.1.0", "Tenant": "TenantA", "LastSeen": "2026-06-17T07:30:00Z" },
+    { "DeviceId": "DEV-1009", "DeviceName": "Cell-Site-009", "DeviceType": "Small Cell", "IPAddress": "10.18.9.10", "Region": "West",    "Status": "online",  "Firmware": "v3.2.1", "Tenant": "TenantB", "LastSeen": "2026-06-17T08:00:00Z" },
+    { "DeviceId": "DEV-1010", "DeviceName": "Cell-Site-010", "DeviceType": "Router",     "IPAddress": "10.19.10.11","Region": "Central", "Status": "offline", "Firmware": "v2.0.5", "Tenant": "TenantC", "LastSeen": "2026-06-16T20:00:00Z" },
+    { "DeviceId": "DEV-1011", "DeviceName": "Cell-Site-011", "DeviceType": "Switch",     "IPAddress": "10.10.11.12","Region": "North",   "Status": "online",  "Firmware": "v3.1.0", "Tenant": "TenantA", "LastSeen": "2026-06-17T07:45:00Z" },
+    { "DeviceId": "DEV-1012", "DeviceName": "Cell-Site-012", "DeviceType": "RRU",        "IPAddress": "10.11.12.13","Region": "South",   "Status": "online",  "Firmware": "v2.4.2", "Tenant": "TenantB", "LastSeen": "2026-06-17T07:52:00Z" },
+    { "DeviceId": "DEV-1013", "DeviceName": "Cell-Site-013", "DeviceType": "gNodeB",     "IPAddress": "10.12.13.14","Region": "East",    "Status": "online",  "Firmware": "v4.2.0", "Tenant": "TenantA", "LastSeen": "2026-06-17T08:02:00Z" },
+    { "DeviceId": "DEV-1014", "DeviceName": "Cell-Site-014", "DeviceType": "eNodeB",     "IPAddress": "10.13.14.15","Region": "West",    "Status": "warning", "Firmware": "v3.0.1", "Tenant": "TenantC", "LastSeen": "2026-06-17T07:20:00Z" },
+    { "DeviceId": "DEV-1015", "DeviceName": "Cell-Site-015", "DeviceType": "Small Cell", "IPAddress": "10.14.15.16","Region": "Central", "Status": "online",  "Firmware": "v2.1.4", "Tenant": "TenantB", "LastSeen": "2026-06-17T07:59:00Z" },
+    { "DeviceId": "DEV-1016", "DeviceName": "Cell-Site-016", "DeviceType": "Router",     "IPAddress": "10.15.1.17", "Region": "North",   "Status": "online",  "Firmware": "v3.3.0", "Tenant": "TenantA", "LastSeen": "2026-06-17T07:54:00Z" },
+    { "DeviceId": "DEV-1017", "DeviceName": "Cell-Site-017", "DeviceType": "Switch",     "IPAddress": "10.16.2.18", "Region": "South",   "Status": "offline", "Firmware": "v2.0.3", "Tenant": "TenantC", "LastSeen": "2026-06-16T18:00:00Z" },
+    { "DeviceId": "DEV-1018", "DeviceName": "Cell-Site-018", "DeviceType": "RRU",        "IPAddress": "10.17.3.19", "Region": "East",    "Status": "online",  "Firmware": "v4.0.2", "Tenant": "TenantA", "LastSeen": "2026-06-17T07:48:00Z" },
+    { "DeviceId": "DEV-1019", "DeviceName": "Cell-Site-019", "DeviceType": "gNodeB",     "IPAddress": "10.18.4.20", "Region": "West",    "Status": "online",  "Firmware": "v3.1.3", "Tenant": "TenantB", "LastSeen": "2026-06-17T07:57:00Z" },
+    { "DeviceId": "DEV-1020", "DeviceName": "Cell-Site-020", "DeviceType": "eNodeB",     "IPAddress": "10.19.5.21", "Region": "Central", "Status": "warning", "Firmware": "v2.2.5", "Tenant": "TenantA", "LastSeen": "2026-06-17T07:35:00Z" }
+  ],
+  "totalCount": 20
+}

@@ -2,12 +2,22 @@
   "name": "ind-devices",
   "version": "1.0.0",
   "private": true,
+  "description": "IND-DEVICES — RAN Fault & Inventory Console. Single-SPA monorepo with Module Federation, Chakra UI WCAG 2.2, and AI accessibility agent.",
   "workspaces": ["root-config", "packages/*", "apps/*", "server"],
   "scripts": {
     "install:all": "npm install",
-    "start:server": "npm run dev --workspace=server",
-    "start:mfes": "concurrently -n root,login,dashboard,devices -c blue,green,magenta,yellow \"npm run start --workspace=root-config\" \"npm run start --workspace=login\" \"npm run start --workspace=dashboard\" \"npm run start --workspace=devices\"",
-    "start": "concurrently -n server,root,login,dashboard,devices -c cyan,blue,green,magenta,yellow \"npm run dev --workspace=server\" \"npm run start --workspace=root-config\" \"npm run start --workspace=login\" \"npm run start --workspace=dashboard\" \"npm run start --workspace=devices\"",
+
+    "start:shared":    "npm run start --workspace=@ind-devices/shared",
+    "start:server":    "npm run dev   --workspace=server",
+    "start:root":      "npm run start --workspace=root-config",
+    "start:login":     "npm run start --workspace=login",
+    "start:dashboard": "npm run start --workspace=dashboard",
+    "start:devices":   "npm run start --workspace=devices",
+
+    "start:mfes": "concurrently -n shared,root,login,dashboard,devices -c cyan,blue,green,magenta,yellow \"npm run start:shared\" \"npm run start:root\" \"npm run start:login\" \"npm run start:dashboard\" \"npm run start:devices\"",
+
+    "start": "concurrently -n server,shared,root,login,dashboard,devices -c white,cyan,blue,green,magenta,yellow \"npm run start:server\" \"npm run start:shared\" \"npm run start:root\" \"npm run start:login\" \"npm run start:dashboard\" \"npm run start:devices\"",
+
     "build": "npm run build --workspaces --if-present"
   },
   "devDependencies": {

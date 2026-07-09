@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState, Suspense } from 'react';
 import {
   Alert, AlertDescription, AlertDialog, AlertDialogBody, AlertDialogContent,
   AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, AlertIcon,
@@ -10,7 +10,14 @@ import {
   getDevices, createDevice, updateDevice, deleteDevice,
   DEVICE_STATUS_OPTIONS, useWcagAudit, WcagAuditPanel,
 } from '@ind-devices/shared';
-import DeviceModal from './DeviceModal';
+
+/**
+ * DeviceModal is lazy-loaded — the modal chunk (form fields, validation,
+ * Chakra Modal) is only fetched the first time a user clicks Add/Edit.
+ * This mirrors how DTIAS inventory exposes DriftTemplateModal and
+ * FirmwareUpgradeView as separate MF-exposed modules loaded on demand.
+ */
+const DeviceModal = React.lazy(() => import('./DeviceModal'));
 
 const PAGE_SIZES = [5, 10, 20];
 
@@ -344,14 +351,16 @@ export default function DevicesPage() {
         </HStack>
       </Flex>
 
-      {/* Device add/edit modal */}
+      {/* Device add/edit modal — lazy chunk fetched only on first open */}
       {modalDevice !== undefined && (
-        <DeviceModal
-          device={modalDevice}
-          onSave={handleSave}
-          onClose={() => setModalDevice(undefined)}
-          isSaving={isSaving}
-        />
+        <Suspense fallback={null}>
+          <DeviceModal
+            device={modalDevice}
+            onSave={handleSave}
+            onClose={() => setModalDevice(undefined)}
+            isSaving={isSaving}
+          />
+        </Suspense>
       )}
 
       {/* Delete confirm — WCAG 2.1.1 keyboard trap, 4.1.2 dialog semantics via Chakra AlertDialog */}

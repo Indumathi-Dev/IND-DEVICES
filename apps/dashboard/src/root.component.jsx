@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ChakraProvider, extendTheme } from '@chakra-ui/react';
 import { isAuthenticated, navigateTo } from '@ind-devices/shared';
-import AppShell from '@ind-devices/shared/src/components/AppShell';
+import AppShell from '@ind-devices/shared/components/AppShell';
 import DashboardPage from './DashboardPage';
 
 const theme = extendTheme({

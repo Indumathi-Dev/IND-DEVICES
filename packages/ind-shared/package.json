@@ -2,7 +2,12 @@
   "name": "@ind-devices/shared",
   "version": "1.0.0",
   "private": true,
+  "description": "Shared component library and services — mirrors ui-common in DTIAS. Exposed as a Module Federation remote (ind_shared) on port 8080.",
   "main": "src/index.js",
+  "scripts": {
+    "start": "webpack serve --port 8080",
+    "build": "webpack --mode production"
+  },
   "dependencies": {
     "@chakra-ui/react": "^2.10.4",
     "@emotion/react": "^11.13.5",
@@ -10,5 +15,16 @@
     "framer-motion": "^11.11.17",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.25.2",
+    "@babel/preset-env": "^7.25.4",
+    "@babel/preset-react": "^7.24.7",
+    "babel-loader": "^9.2.1",
+    "css-loader": "^7.1.2",
+    "style-loader": "^4.0.0",
+    "webpack": "^5.94.0",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^5.1.0"
   }
 }

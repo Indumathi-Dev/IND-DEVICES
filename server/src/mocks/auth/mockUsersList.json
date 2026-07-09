@@ -1,0 +1,13 @@
+{
+  "users": [
+    {
+      "UserId":      "usr-001",
+      "Username":    "admin",
+      "Password":    "admin@123!",
+      "DisplayName": "Admin User",
+      "Roles":       ["NOC_OPERATOR", "DEVICE_ADMIN"],
+      "Tenant":      "TenantA",
+      "Enabled":     true
+    }
+  ]
+}

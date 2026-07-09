@@ -1,30 +1,20 @@
-import { registerApplication, start } from 'single-spa';
+/**
+ * ind-devices-root-config.js
+ *
+ * single-spa orchestrator — loaded via bootstrap.js async MF boundary.
+ * Delegates app registration to registerApps.js which mirrors
+ * registerApps.ts:70-118 (LOADER.SPA | LOADER.MODULE_FEDERATION).
+ */
+import { start } from 'single-spa'
+import { startRegisteringApps } from './registerApps.js'
 
-const SESSION_KEY = 'ind-devices:session';
-function isAuthenticated() {
-  try {
-    const s = JSON.parse(sessionStorage.getItem(SESSION_KEY) || 'null');
-    return s && (!s.expiresAt || Date.now() <= s.expiresAt);
-  } catch { return false; }
-}
+// Register all MFEs (LOADER.MODULE_FEDERATION path)
+startRegisteringApps()
 
-registerApplication({
-  name: '@ind-devices/login',
-  app: () => System.import('@ind-devices/login'),
-  activeWhen: () => !isAuthenticated(),
-});
-registerApplication({
-  name: '@ind-devices/dashboard',
-  app: () => System.import('@ind-devices/dashboard'),
-  activeWhen: (loc) => isAuthenticated() && (loc.pathname === '/' || loc.pathname.startsWith('/dashboard')),
-});
-registerApplication({
-  name: '@ind-devices/devices',
-  app: () => System.import('@ind-devices/devices'),
-  activeWhen: (loc) => isAuthenticated() && loc.pathname.startsWith('/devices'),
-});
+// Re-evaluate activity functions on auth state change without URL change.
+// Mirrors DTIAS custom event-bus approach for cross-MFE session propagation.
+window.addEventListener('ind-devices:session-changed', () => {
+  window.dispatchEvent(new PopStateEvent('popstate'))
+})
 
-window.addEventListener('ind-devices:session-changed', () =>
-  window.dispatchEvent(new PopStateEvent('popstate')));
-
-start({ urlRerouteOnly: true });
+start({ urlRerouteOnly: true })

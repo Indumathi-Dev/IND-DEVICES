@@ -8,6 +8,19 @@ import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import { getDashboardStats, useWcagAudit, WcagAuditPanel } from '@ind-devices/shared';
 
+/** Fetch from server BFF (MODE-gated inside the server route).
+ *  Falls back to the client-side mock if the agent server is not running. */
+async function fetchDashboardStats() {
+  try {
+    const res = await fetch('http://localhost:8090/api/home/dashboard/getStats/stats')
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    return await res.json()
+  } catch {
+    // Graceful fallback to the client-side mock aggregation
+    return getDashboardStats()
+  }
+}
+
 /* Accessible Highcharts base — applies across all charts */
 const BASE = {
   chart: { backgroundColor: 'transparent', style: { fontFamily: 'inherit' } },
@@ -61,7 +74,7 @@ export default function DashboardPage() {
   const { containerRef, runAudit, result, isAuditing } = useWcagAudit('Dashboard');
 
   useEffect(() => {
-    getDashboardStats()
+    fetchDashboardStats()
       .then(setStats)
       .catch(e => setError(e.message))
       .finally(() => setLoading(false));

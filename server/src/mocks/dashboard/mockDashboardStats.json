@@ -1,0 +1,34 @@
+{
+  "TotalDevices": 20,
+  "StatusCounts": {
+    "online":  14,
+    "warning":  4,
+    "offline":  2
+  },
+  "TypeCounts": {
+    "gNodeB":     4,
+    "eNodeB":     4,
+    "Small Cell": 3,
+    "Router":     3,
+    "Switch":     3,
+    "RRU":        3
+  },
+  "RegionCounts": {
+    "North":   4,
+    "South":   4,
+    "East":    4,
+    "West":    4,
+    "Central": 4
+  },
+  "AlertTrend": [
+    { "Day": "Mon", "Critical": 2, "Warning": 7  },
+    { "Day": "Tue", "Critical": 1, "Warning": 5  },
+    { "Day": "Wed", "Critical": 3, "Warning": 9  },
+    { "Day": "Thu", "Critical": 0, "Warning": 4  },
+    { "Day": "Fri", "Critical": 2, "Warning": 6  },
+    { "Day": "Sat", "Critical": 1, "Warning": 3  },
+    { "Day": "Sun", "Critical": 4, "Warning": 11 }
+  ],
+  "AvgUptimePct": 98.4,
+  "OpenIncidents": 6
+}
