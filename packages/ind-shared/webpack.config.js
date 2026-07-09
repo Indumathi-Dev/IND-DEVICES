@@ -29,6 +29,7 @@ module.exports = (env, argv) => {
       filename:   'ind-shared.js',
       publicPath: 'http://localhost:8080/',
       clean: true,
+      crossOriginLoading: 'anonymous',
     },
 
     module: {

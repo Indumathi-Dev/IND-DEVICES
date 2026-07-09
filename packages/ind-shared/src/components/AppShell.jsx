@@ -214,7 +214,7 @@ export default function AppShell({ activeKey, children }) {
           as="main"
           id="main-content"
           flex="1"
-          px={6}
+          p={3}          
           tabIndex={-1}
           _focus={{ outline: 'none' }}
         >

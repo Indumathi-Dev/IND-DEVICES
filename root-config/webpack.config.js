@@ -17,6 +17,7 @@ module.exports = (env, argv) => {
       filename:   'ind-devices-root-config.js',
       publicPath: 'http://localhost:9000/',
       clean: true,
+      crossOriginLoading: 'anonymous',
     },
     plugins: [
       ...mfConfig.plugins,

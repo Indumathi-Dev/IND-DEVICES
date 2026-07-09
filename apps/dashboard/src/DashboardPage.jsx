@@ -9,15 +9,34 @@ import HighchartsReact from 'highcharts-react-official';
 import { getDashboardStats, useWcagAudit, WcagAuditPanel } from '@ind-devices/shared';
 
 /** Fetch from server BFF (MODE-gated inside the server route).
- *  Falls back to the client-side mock if the agent server is not running. */
+ *  Falls back to the client-side mock if the agent server is not running.
+ *  Normalises API casing so both server and local mock payloads match the
+ *  client-side dashboard shape expected by charts and KPI cards. */
+function normalizeDashboardStats(data) {
+  return {
+    totalDevices: data.TotalDevices ?? data.totalDevices ?? 0,
+    statusCounts: {
+      online: data.StatusCounts?.online ?? data.statusCounts?.online ?? 0,
+      warning: data.StatusCounts?.warning ?? data.statusCounts?.warning ?? 0,
+      offline: data.StatusCounts?.offline ?? data.statusCounts?.offline ?? 0,
+    },
+    typeCounts: data.TypeCounts ?? data.typeCounts ?? {},
+    regionCounts: data.RegionCounts ?? data.regionCounts ?? {},
+    alertTrend: data.AlertTrend ?? data.alertTrend ?? [],
+    avgUptimePct: data.AvgUptimePct ?? data.avgUptimePct ?? 0,
+    openIncidents: data.OpenIncidents ?? data.openIncidents ?? 0,
+  }
+}
+
 async function fetchDashboardStats() {
   try {
     const res = await fetch('http://localhost:8090/api/home/dashboard/getStats/stats')
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
-    return await res.json()
+    const data = await res.json()
+    return normalizeDashboardStats(data)
   } catch {
     // Graceful fallback to the client-side mock aggregation
-    return getDashboardStats()
+    return normalizeDashboardStats(await getDashboardStats())
   }
 }
 
