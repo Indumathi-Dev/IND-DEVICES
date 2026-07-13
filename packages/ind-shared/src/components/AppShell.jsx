@@ -57,7 +57,7 @@ export default function AppShell({ activeKey, children }) {
   }
 
   return (
-    <Flex  direction="column" bg="gray.50">
+    <Flex h="100vh" direction="column" bg="gray.50">
       {/* ── Header ─────────────────────────────────────────────────── */}
       <Box
         as="header"
@@ -143,7 +143,7 @@ export default function AppShell({ activeKey, children }) {
       </Box>
 
       {/* ── Body: Nav + Content ────────────────────────────────────── */}
-      <Flex flex="1">
+      <Flex flex="1" minH="0" overflow="hidden">
         {/* Left Navigation — WCAG 4.1.2 landmark + keyboard accessible */}
         <Box
           as="nav"
@@ -214,7 +214,8 @@ export default function AppShell({ activeKey, children }) {
           as="main"
           id="main-content"
           flex="1"
-          p={3}          
+          overflowY="auto"
+          p={6}
           tabIndex={-1}
           _focus={{ outline: 'none' }}
         >

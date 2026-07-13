@@ -10,7 +10,7 @@
     "@chakra-ui/react": "^2.10.4",
     "@emotion/react": "^11.13.5",
     "@emotion/styled": "^11.13.5",
-    "@ind-devices/shared": "^1.0.0",
+    "@ind-devices/shared": "*",
     "framer-motion": "^11.11.17",
     "highcharts": "^11.4.8",
     "highcharts-react-official": "^3.2.1",

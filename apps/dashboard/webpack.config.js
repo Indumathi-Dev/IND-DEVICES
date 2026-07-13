@@ -32,7 +32,6 @@ module.exports = (env, argv) => {
       // Same build works at localhost AND on a CDN / PVC path without rebuilding.
       publicPath: 'auto',
       clean: true,
-      crossOriginLoading: 'anonymous',
     },
 
     module: {

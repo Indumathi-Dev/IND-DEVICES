@@ -40,7 +40,6 @@ function loadRemoteEntry(url) {
     script.src = url
     script.type = 'text/javascript'
     script.async = true
-    script.crossOrigin = 'anonymous'
 
     script.onload = () => {
       loadedScripts.add(url)

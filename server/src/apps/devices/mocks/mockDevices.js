@@ -2,32 +2,24 @@
 /**
  * server/src/apps/devices/mocks/mockDevices.js
  *
- * Mock request handlers for the Devices module.
- *
- * Mirrors mockScheduler.ts EXACTLY:
- *   ✓ Imports static JSON fixture  (mockSchedulesList.json → mockDevicesList.json)
+ * Mock handlers — mirrors mockScheduler.ts exactly:
  *   ✓ logger.info({ status, logMessage }) on every success
  *   ✓ Three-bucket error handler: ZodError | no-response | has-response
- *   ✓ Same async function signature: (req, res) => Promise<any>
- *   ✓ Same export shape: named exports per handler
  *
- * In-memory store initialised from fixture so mutations (create/update/delete)
- * persist for the lifetime of the server process and reset on restart —
- * same behaviour as the scheduler mock's stateless approach.
- *
- * Selected by devices_route.js when process.env.MODE === 'DEVELOPMENT'.
+ * Carbon emission is calculated per device using carbonUtils.enrichWithCarbon()
+ * so every item in the list response carries CarbonEmissionKgPerDay derived
+ * live from its PowerControl[].AverageConsumedWatts and Region.
  */
 
-const mockDevicesList = require('./mockDevicesList.json')
-const logger          = require('../../../logger/logger')
+const mockDevicesList                = require('./mockDevicesList.json')
+const logger                         = require('../../../logger/logger')
+const { enrichWithCarbon }           = require('../../../utils/carbonUtils')
 
-// In-memory mutable store — deep clone so we never mutate the require() cache
+// In-memory mutable store — deep clone so require() cache is never mutated
 let store = JSON.parse(JSON.stringify(mockDevicesList.devices))
 
-// ── Shared error handler (mirrors mockScheduler.ts catch blocks) ─────────────
 function handleErr(res, err) {
   console.log(err)
-  // Simulate z.ZodError check from the reference
   if (err && err.name === 'ZodError') {
     return res.status(500).json({ message: err.issues })
   } else if (!err.response) {
@@ -37,8 +29,7 @@ function handleErr(res, err) {
   }
 }
 
-// ── GET /home/devices/getDevicesList/devices ─────────────────────────────────
-// mirrors: getSchedulesList — returns list with server-side filter + pagination
+// ── GET /home/devices/getDevicesList/devices ──────────────────────────────────
 const getDevicesList = async (req, res) => {
   try {
     const { page = '1', pageSize = '10', search = '', status = 'all' } = req.query
@@ -54,120 +45,96 @@ const getDevicesList = async (req, res) => {
         d.Region.toLowerCase().includes(q)
       )
     }
-    if (status !== 'all') {
-      filtered = filtered.filter(d => d.Status === status)
-    }
+    if (status !== 'all') filtered = filtered.filter(d => d.Status === status)
 
     const totalCount = filtered.length
-    const p  = Math.max(1, parseInt(page,     10))
-    const ps = Math.max(1, parseInt(pageSize, 10))
-    const devices = filtered.slice((p - 1) * ps, p * ps)
+    const p          = Math.max(1, parseInt(page, 10))
+    const ps         = Math.max(1, parseInt(pageSize, 10))
 
-    const message = { status: 200, logMessage: 'RESPONSE RECEIVED' }
-    logger.info(message)
+    // Enrich each device with live CarbonEmissionKgPerDay
+    const devices = filtered
+      .slice((p - 1) * ps, p * ps)
+      .map(enrichWithCarbon)
+
+    logger.info({ status: 200, logMessage: 'RESPONSE RECEIVED' })
     res.status(200).json({ devices, totalCount, page: p, pageSize: ps })
-  } catch (err) {
-    handleErr(res, err)
-  }
+  } catch (err) { handleErr(res, err) }
 }
 
-// ── GET /home/devices/getDeviceStats/devices/stats ───────────────────────────
-// mirrors: getSchedulesSummary — aggregated telemetry used by Dashboard charts
+// ── GET /home/devices/getDeviceStats/devices/stats ────────────────────────────
 const getDeviceStats = async (req, res) => {
   try {
-    const StatusCounts  = { online: 0, warning: 0, offline: 0 }
-    const TypeCounts    = {}
-    const RegionCounts  = {}
+    const StatusCounts = { online: 0, warning: 0, offline: 0 }
+    const TypeCounts   = {}
+    const RegionCounts = {}
 
     store.forEach(d => {
-      StatusCounts[d.Status]    = (StatusCounts[d.Status]    || 0) + 1
-      TypeCounts[d.DeviceType]  = (TypeCounts[d.DeviceType]  || 0) + 1
-      RegionCounts[d.Region]    = (RegionCounts[d.Region]    || 0) + 1
+      StatusCounts[d.Status]   = (StatusCounts[d.Status]   || 0) + 1
+      TypeCounts[d.DeviceType] = (TypeCounts[d.DeviceType] || 0) + 1
+      RegionCounts[d.Region]   = (RegionCounts[d.Region]   || 0) + 1
     })
 
-    const message = { status: 200, logMessage: 'RESPONSE RECEIVED' }
-    logger.info(message)
-    res.status(200).json({
-      TotalDevices: store.length,
-      StatusCounts,
-      TypeCounts,
-      RegionCounts,
-    })
-  } catch (err) {
-    handleErr(res, err)
-  }
+    logger.info({ status: 200, logMessage: 'RESPONSE RECEIVED' })
+    res.status(200).json({ TotalDevices: store.length, StatusCounts, TypeCounts, RegionCounts })
+  } catch (err) { handleErr(res, err) }
 }
 
-// ── POST /home/devices/createDevice/devices ──────────────────────────────────
-// mirrors: createSchedule → res.status(200).json('Successfully Created Resource Group')
+// ── POST /home/devices/createDevice/devices ───────────────────────────────────
 const createDevice = async (req, res) => {
   try {
-    const body = req.body
+    const b = req.body
     const newDevice = {
       DeviceId:   `DEV-${1000 + store.length + 1}`,
-      DeviceName: body.DeviceName  || body.name       || 'Unknown',
-      DeviceType: body.DeviceType  || body.type       || 'gNodeB',
-      IPAddress:  body.IPAddress   || body.ipAddress  || '0.0.0.0',
-      Region:     body.Region      || body.region     || 'North',
-      Status:     body.Status      || body.status     || 'online',
-      Firmware:   body.Firmware    || body.firmware   || 'v1.0.0',
-      Tenant:     body.Tenant      || body.tenant     || 'TenantA',
-      CreatedBy:  body.CreatedBy   || 'operator',
-      LastSeen:   new Date().toISOString(),
+      DeviceName:  b.DeviceName  || b.name      || 'Unknown',
+      DeviceType:  b.DeviceType  || b.type      || 'gNodeB',
+      IPAddress:   b.IPAddress   || b.ipAddress || '0.0.0.0',
+      Region:      b.Region      || b.region    || 'North',
+      Status:      b.Status      || b.status    || 'online',
+      Firmware:    b.Firmware    || b.firmware  || 'v1.0.0',
+      Tenant:      b.Tenant      || b.tenant    || 'TenantA',
+      CreatedBy:   b.CreatedBy   || 'operator',
+      LastSeen:    new Date().toISOString(),
+      PowerControl: b.PowerControl || [{ PowerConsumedWatts: 250, AverageConsumedWatts: 220 }],
     }
     store.unshift(newDevice)
 
-    const message = { status: 200, logMessage: 'RESPONSE RECEIVED' }
-    logger.info(message)
-    res.status(200).json(newDevice)
+    logger.info({ status: 200, logMessage: 'RESPONSE RECEIVED' })
+    res.status(200).json(enrichWithCarbon(newDevice))
   } catch (err) {
-    if (!err.response) {
-      return res.status(500).json({ message: "Couldn't make request to server, connection refused." })
-    }
+    if (!err.response) return res.status(500).json({ message: "Couldn't make request to server, connection refused." })
     res.status(err.response.status).json({ message: err.response.data })
   }
 }
 
 // ── PUT /home/devices/updateDevice/devices/:deviceId ─────────────────────────
-// mirrors: updateSchedule → res.status(200).json('successfully updated Schedule')
 const updateDevice = async (req, res) => {
   try {
     const { deviceId } = req.params
     const idx = store.findIndex(d => d.DeviceId === deviceId)
-    if (idx === -1)
-      return res.status(404).json({ message: `Device ${deviceId} not found` })
+    if (idx === -1) return res.status(404).json({ message: `Device ${deviceId} not found` })
 
     store[idx] = { ...store[idx], ...req.body }
 
-    const message = { status: 200, logMessage: 'RESPONSE RECEIVED' }
-    logger.info(message)
-    res.status(200).json(store[idx])
+    logger.info({ status: 200, logMessage: 'RESPONSE RECEIVED' })
+    res.status(200).json(enrichWithCarbon(store[idx]))
   } catch (err) {
-    if (!err.response) {
-      return res.status(500).json({ message: "Couldn't make request to server, connection refused." })
-    }
+    if (!err.response) return res.status(500).json({ message: "Couldn't make request to server, connection refused." })
     res.status(err.response.status).json({ message: err.response.data })
   }
 }
 
 // ── DELETE /home/devices/deleteDevice/devices/:deviceId ──────────────────────
-// mirrors: deleteSchedule → res.status(200).json('Successfully deleted Schedule')
 const deleteDevice = async (req, res) => {
   try {
     const deviceId = req.params.deviceId || req.url.split('/').pop()
     const before   = store.length
     store          = store.filter(d => d.DeviceId !== deviceId)
+    if (store.length === before) return res.status(404).json({ message: `Device ${deviceId} not found` })
 
-    if (store.length === before)
-      return res.status(404).json({ message: `Device ${deviceId} not found` })
-
-    const message = { status: 200, logMessage: 'RESPONSE RECEIVED' }
-    logger.info(message)
+    logger.info({ status: 200, logMessage: 'RESPONSE RECEIVED' })
     res.status(200).json('Successfully deleted Device')
   } catch (err) {
-    if (!err.response) {
-      return res.status(500).json({ message: "Couldn't make request to server, connection refused." })
-    }
+    if (!err.response) return res.status(500).json({ message: "Couldn't make request to server, connection refused." })
     res.status(err.response.status).json({ message: err.response.data })
   }
 }

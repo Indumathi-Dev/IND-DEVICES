@@ -2,27 +2,16 @@
 /**
  * server/src/apps/dashboard/mocks/mockDashboard.js
  *
- * Mock request handlers for the Dashboard module.
- *
- * Mirrors mockScheduler.ts EXACTLY:
- *   ✓ Imports static JSON fixture  (mockSchedulesList.json → mockDashboardStats.json)
- *   ✓ logger.info({ status, logMessage }) on every success path
- *   ✓ Three-bucket error handler: ZodError | no-response | has-response
- *   ✓ Same async (req, res) => Promise<any> signature
- *   ✓ Same named-export shape
- *
- * Live StatusCounts / TypeCounts / RegionCounts are derived from the device
- * store at request time so the dashboard charts always match the devices table —
- * the same consistency guarantee a real aggregation endpoint would provide.
- *
- * Selected by dashboard_route.js when process.env.MODE === 'DEVELOPMENT'.
+ * Mock handlers — mirrors mockScheduler.ts error shape exactly.
+ * New handler: getCarbonTrendByRegion — drives the Region-filtered
+ * Highcharts carbon chart on the dashboard.
  */
 
-const mockDashboardStats = require('./mockDashboardStats.json')
-const mockDevicesList    = require('../../devices/mocks/mockDevicesList.json')
-const logger             = require('../../../logger/logger')
+const mockDashboardStats             = require('./mockDashboardStats.json')
+const mockDevicesList                = require('../../devices/mocks/mockDevicesList.json')
+const logger                         = require('../../../logger/logger')
+const { buildWeeklyTrend, buildRegionSummary, enrichWithCarbon } = require('../../../utils/carbonUtils')
 
-// ── Shared error handler — mirrors mockScheduler.ts catch blocks ──────────────
 function handleErr(res, err) {
   console.log(err)
   if (err && err.name === 'ZodError') {
@@ -35,22 +24,21 @@ function handleErr(res, err) {
 }
 
 // ── GET /home/dashboard/getStats/stats ───────────────────────────────────────
-// mirrors: getSchedulesSummary — aggregated fleet telemetry for KPI cards + charts
 const getDashboardStats = async (req, res) => {
   try {
-    // Derive live counts from the device fixture so dashboard + table stay in sync
-    const devices       = mockDevicesList.devices
-    const StatusCounts  = { online: 0, warning: 0, offline: 0 }
-    const TypeCounts    = {}
-    const RegionCounts  = {}
+    const devices      = mockDevicesList.devices
+    const StatusCounts = { online: 0, warning: 0, offline: 0 }
+    const TypeCounts   = {}
+    const RegionCounts = {}
 
     devices.forEach(d => {
-      StatusCounts[d.Status]    = (StatusCounts[d.Status]    || 0) + 1
-      TypeCounts[d.DeviceType]  = (TypeCounts[d.DeviceType]  || 0) + 1
-      RegionCounts[d.Region]    = (RegionCounts[d.Region]    || 0) + 1
+      StatusCounts[d.Status]   = (StatusCounts[d.Status]   || 0) + 1
+      TypeCounts[d.DeviceType] = (TypeCounts[d.DeviceType] || 0) + 1
+      RegionCounts[d.Region]   = (RegionCounts[d.Region]   || 0) + 1
     })
 
-    const data = {
+    logger.info({ status: 200, logMessage: 'RESPONSE RECEIVED' })
+    res.status(200).json({
       TotalDevices:  devices.length,
       StatusCounts,
       TypeCounts,
@@ -58,28 +46,58 @@ const getDashboardStats = async (req, res) => {
       AlertTrend:    mockDashboardStats.AlertTrend,
       AvgUptimePct:  mockDashboardStats.AvgUptimePct,
       OpenIncidents: StatusCounts.offline + Math.round((StatusCounts.warning || 0) / 2),
-    }
-
-    const message = { status: 200, logMessage: 'RESPONSE RECEIVED' }
-    logger.info(message)
-    res.status(200).json(data)
-  } catch (err) {
-    handleErr(res, err)
-  }
+    })
+  } catch (err) { handleErr(res, err) }
 }
 
-// ── GET /home/dashboard/getAlertTrend/stats/trend ────────────────────────────
-// mirrors: getSchedulesJobs — time-series sub-resource of the parent entity
+// ── GET /home/dashboard/getAlertTrend/stats/trend ───────────────────────────
 const getAlertTrend = async (req, res) => {
   try {
-    const data = mockDashboardStats.AlertTrend
-
-    const message = { status: 200, logMessage: 'RESPONSE RECEIVED' }
-    logger.info(message)
-    res.status(200).json(data)
-  } catch (err) {
-    handleErr(res, err)
-  }
+    logger.info({ status: 200, logMessage: 'RESPONSE RECEIVED' })
+    res.status(200).json(mockDashboardStats.AlertTrend)
+  } catch (err) { handleErr(res, err) }
 }
 
-module.exports = { getDashboardStats, getAlertTrend }
+// ── GET /home/dashboard/getCarbonTrend/stats/carbon?region=all|<Region> ──────
+//
+// Returns:
+//   RegionSummary[]  — total/avg CO₂ per region (always returned)
+//   WeeklyTrend[]    — 7-day CO₂ history:
+//                        region=all  → { Day, North, South, East, West, Central }
+//                        region=X    → { Day, TotalCarbonKgPerDay }
+//   DeviceBreakdown[]— per-device breakdown (only when a specific region is selected)
+//
+const getCarbonTrendByRegion = async (req, res) => {
+  try {
+    const region  = req.query.region || 'all'
+    const devices = mockDevicesList.devices
+
+    const RegionSummary  = buildRegionSummary(devices)
+    const WeeklyTrend    = buildWeeklyTrend(devices, region)
+
+    // Per-device carbon breakdown for the selected region (not shown for 'all')
+    let DeviceBreakdown = []
+    if (region !== 'all') {
+      DeviceBreakdown = devices
+        .filter(d => d.Region === region)
+        .map(d => {
+          const enriched = enrichWithCarbon(d)
+          return {
+            DeviceId:             d.DeviceId,
+            DeviceName:           d.DeviceName,
+            DeviceType:           d.DeviceType,
+            Status:               d.Status,
+            PowerConsumedWatts:   d.PowerControl?.[0]?.PowerConsumedWatts   ?? 0,
+            AverageConsumedWatts: d.PowerControl?.[0]?.AverageConsumedWatts ?? 0,
+            CarbonEmissionKgPerDay: enriched.CarbonEmissionKgPerDay,
+          }
+        })
+        .sort((a, b) => b.CarbonEmissionKgPerDay - a.CarbonEmissionKgPerDay)
+    }
+
+    logger.info({ status: 200, logMessage: 'RESPONSE RECEIVED' })
+    res.status(200).json({ region, RegionSummary, WeeklyTrend, DeviceBreakdown })
+  } catch (err) { handleErr(res, err) }
+}
+
+module.exports = { getDashboardStats, getAlertTrend, getCarbonTrendByRegion }
