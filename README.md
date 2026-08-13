@@ -1,6 +1,6 @@
 # IND-DEVICES — Single-SPA MFE with WCAG 2.2 AI Agent
 
-A production-pattern micro-frontend monorepo (mirrors DTIAS/FLCM-GUI) with three
+A production-pattern micro-frontend monorepowith three
 independently-deployable MFEs built on **Chakra UI**, fully compliant with
 **WCAG 2.2 Level AA**, and augmented by an **AI accessibility audit agent** that
 inspects each component at runtime using Claude.
